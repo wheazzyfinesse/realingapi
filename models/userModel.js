@@ -1,0 +1,54 @@
+import mongoose from "mongoose";
+
+const userPropertySchema = mongoose.Schema(
+	{
+		username: {
+			type: String,
+			required: true,
+		},
+		email: {
+			type: String,
+			required: true,
+			unique: true,
+		},
+		password: {
+			type: String,
+			required: true,
+		},
+		image: {
+			type: String,
+			default: "",
+		},
+		phone: {
+			type: String,
+			default: "",
+		},
+		address: {
+			type: String,
+			default: "",
+		},
+		city: {
+			type: String,
+			default: "",
+		},
+		state: {
+			type: String,
+			default: "",
+		},
+		zip: {
+			type: String,
+			default: "",
+		},
+		country: {
+			type: String,
+			default: "",
+		},
+		isAdmin: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	{ timestamps: true },
+);
+const UserProperties = mongoose.model("UserProperties", userPropertySchema);
+export default UserProperties;
