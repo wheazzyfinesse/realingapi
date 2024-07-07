@@ -21,10 +21,10 @@ const registerUser = async (req, res) => {
 				password: hashedPassword,
 			});
 			const userId = user._id;
-			createToken(userId);
+			createToken(res, userId);
 			// Set the token in a header
 			const { password, ...userInfo } = user._doc;
-			res.status(201).json({ userInfo });
+			res.status(201).json(userInfo);
 		}
 	} catch (error) {
 		console.log(error);
