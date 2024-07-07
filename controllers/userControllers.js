@@ -24,11 +24,10 @@ const registerUser = async (req, res) => {
 			createToken(res, userId);
 			// Set the token in a header
 			const { password, ...userInfo } = user._doc;
-			res.status(201).json(userInfo);
+			return res.status(201).json(userInfo);
 		}
 	} catch (error) {
-		console.log(error);
-		res.status(500).json({ message: "Server Error" });
+		return res.status(500).json({ message: "Server Error" });
 	}
 };
 
@@ -52,7 +51,7 @@ const loginUser = async (req, res) => {
 				// Generate JWT token
 				createToken(res, userId);
 				const { password, ...userInfo } = user._doc;
-				res.status(201).json(userInfo);
+				return res.status(201).json(userInfo);
 			}
 		}
 	} catch (error) {
