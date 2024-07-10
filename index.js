@@ -13,11 +13,23 @@ import enquiriesRoutes from "./routes/enquiriesRoutes.js";
 // NPM MIDDLEWARES================================================================
 dotenv.config();
 const app = express();
+
+// Define allowed origins
+const allowedOrigins = ["https://realing.vercel.app"];
+
 app.use(
 	cors({
-		// origin: "http://localhost:5173", // Your frontend URL
-		origin: "https://realing.vercel.app/", // Your frontend URL
-		credentials: true,
+		origin: function (origin, callback) {
+			// Allow requests with no origin (like mobile apps, curl requests)
+			if (!origin) return callback(null, true);
+			if (allowedOrigins.indexOf(origin) === -1) {
+				const msg =
+					"The CORS policy for this site does not allow access from the specified Origin.";
+				return callback(new Error(msg), false);
+			}
+			return callback(null, true);
+		},
+		credentials: true, // Allow cookies and other credentials
 	}),
 );
 app.use(cookieParser());
