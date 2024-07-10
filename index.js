@@ -15,7 +15,8 @@ dotenv.config();
 const app = express();
 app.use(
 	cors({
-		origin: "http://localhost:5173", // Your frontend URL
+		// origin: "http://localhost:5173", // Your frontend URL
+		origin: "https://realing.vercel.app/", // Your frontend URL
 		credentials: true,
 	}),
 );
