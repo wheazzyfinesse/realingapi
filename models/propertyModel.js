@@ -3,11 +3,11 @@ const { ObjectId } = mongoose.Schema;
 
 const enquirySchema = mongoose.Schema(
 	{
-		title: {
+		subject: {
 			type: String,
 			required: true,
 		},
-		enquiry: {
+		message: {
 			type: String,
 			required: true,
 		},

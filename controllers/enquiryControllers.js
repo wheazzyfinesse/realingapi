@@ -1,11 +1,18 @@
-import property from "../models/propertyModel.js";
+import { sendMailToAdmin, sendMailToUsers } from "../middlewares/sendmail.js";
+import Property from "../models/propertyModel.js";
 
 // ADMIN CONTROLLERS=============================================
 // Add Enquiry
-const addEnquiry = async (req, res) => {
-	const { tilte, email, password } = req.body;
+const makeEnquiry = async (req, res) => {
+	const { message, subject } = req.body;
+	const { email, _id } = req.user;
 
 	try {
+		// const response1 = sendMailToAdmin(email, subject, message);
+		const response = await sendMailToUsers(email, message);
+		console.log(response);
+
+		return res.staus(200).json(response);
 	} catch (error) {
 		res.status(500).json({ message: "Server Error" });
 	}
@@ -45,7 +52,7 @@ const deleteEnquiry = async (req, res) => {
 
 // EXPORT CONTROLLERS================================================================
 export {
-	addEnquiry,
+	makeEnquiry,
 	getAllEnquiries,
 	getEnquiry,
 	updateEnquiry,

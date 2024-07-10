@@ -2,14 +2,15 @@ import express from "express";
 const router = express.Router();
 import {
 	registerUser,
+	logoutUser,
 	loginUser,
 	getUserProfile,
 	updateUserProfile,
+	deleteUserProfile,
 	getAllUsers,
 	getUser,
 	deleteUser,
 	updateUser,
-	logoutUser,
 } from "../controllers/userControllers.js";
 import { authenticate, authorizeAdmin } from "../middlewares/auth.js";
 
@@ -19,7 +20,8 @@ router.post("/logout", logoutUser);
 router
 	.route("/profile")
 	.get(authenticate, getUserProfile)
-	.put(authenticate, updateUserProfile);
+	.put(authenticate, updateUserProfile)
+	.delete(authenticate, deleteUserProfile);
 
 // Admin routes
 router.route("/").get(authenticate, authorizeAdmin, getAllUsers);

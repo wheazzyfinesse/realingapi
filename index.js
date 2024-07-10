@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 // CUSTOM MODULES============================================================
 import userRoutes from "./routes/userRoutes.js";
@@ -12,7 +13,13 @@ import enquiriesRoutes from "./routes/enquiriesRoutes.js";
 // NPM MIDDLEWARES================================================================
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(
+	cors({
+		origin: "http://localhost:5173", // Your frontend URL
+		credentials: true,
+	}),
+);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

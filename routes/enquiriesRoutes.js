@@ -1,5 +1,5 @@
 import {
-	addEnquiry,
+	makeEnquiry,
 	getAllEnquiries,
 	getEnquiry,
 	updateEnquiry,
@@ -12,7 +12,7 @@ const router = express.Router();
 
 router
 	.route("/")
-	.post(authenticate, addEnquiry)
+	.post(authenticate, makeEnquiry)
 	.get(authenticate, authorizeAdmin, getAllEnquiries);
 router
 	.route("/:id")
