@@ -15,7 +15,7 @@ dotenv.config();
 const app = express();
 
 // Define allowed origins
-const allowedOrigins = ["https://realing.vercel.app"];
+const allowedOrigins = ["https://realing.vercel.app", "http://localhost:5173"];
 
 app.use(
 	cors({
