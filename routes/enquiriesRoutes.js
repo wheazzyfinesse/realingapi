@@ -1,5 +1,5 @@
 import {
-	makeEnquiry,
+	addEnquiry,
 	getAllEnquiries,
 	getEnquiry,
 	updateEnquiry,
@@ -10,10 +10,9 @@ import { authenticate, authorizeAdmin } from "../middlewares/auth.js";
 import express from "express";
 const router = express.Router();
 
-router
-	.route("/")
-	.post(authenticate, makeEnquiry)
-	.get(authenticate, authorizeAdmin, getAllEnquiries);
+router.route("/").get(authenticate, authorizeAdmin, getAllEnquiries);
+
+router.route("/:id/addenquiry").post(authenticate, addEnquiry);
 router
 	.route("/:id")
 	.get(authenticate, getEnquiry)

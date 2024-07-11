@@ -9,28 +9,29 @@ const registerUser = async (req, res) => {
 	const { username, email, password } = req.body;
 	// Check if inputs are valid
 	if (!username || !email || !password) {
-		return res.status(400).json({ message: "All fields are required" });
+		return res.status(400).json("All fields are required");
 	}
 	// Check if user already exists
 	try {
 		const existingUser = await UserProperties.findOne({ email });
 		if (existingUser) {
-			return res.status(400).json({ message: "User already exists" });
-		} else {
-			const salt = await bcrypt.genSalt(10);
-			const hashedPassword = await bcrypt.hash(req.body.password, salt);
-
-			const user = await UserProperties.create({
-				username,
-				email,
-				password: hashedPassword,
-			});
-			const userId = user._id;
-			createToken(res, userId);
-			// Set the token in a header
-			const { password, ...userInfo } = user._doc;
-			return res.status(201).json(userInfo);
+			return res.status(400).json("User already exists");
 		}
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(password, salt);
+
+		const user = await UserProperties.create({
+			username,
+			email,
+			password: hashedPassword,
+		});
+		const userId = user._id;
+		createToken(res, userId);
+
+		// Set the token in a header
+		const { password, ...userInfo } = user._doc;
+
+		return res.status(201).json(userInfo);
 	} catch (error) {
 		return res.status(500).json(error);
 	}
@@ -41,31 +42,32 @@ const loginUser = async (req, res) => {
 	const { email, password } = req.body;
 
 	if (!email || !password) {
-		return res.status(400).json({ message: "All fields are required" });
+		return res.status(400).json("All fields are required");
 	}
+
 	try {
 		const user = await UserProperties.findOne({ email });
 		if (!user) {
 			return res
 				.status(400)
 				.json("Invalid Credentials, try again or register an account");
-		} else {
-			const passwordValid = await bcrypt.compare(password, user.password);
-			if (!passwordValid) {
-				return res
-					.status(400)
-					.json("Invalid Credentials, try again or register an account");
-			} else {
-				const userId = user._id;
-				// Generate JWT token
-				createToken(res, userId);
-				const { password, ...userInfo } = user._doc;
-				return res.status(201).json(userInfo);
-			}
 		}
+		const passwordValid = await bcrypt.compare(
+			req.body.password,
+			user.password,
+		);
+		if (!passwordValid) {
+			return res
+				.status(400)
+				.json("Invalid Credentials, try again or register an account");
+		}
+		const userId = user._id;
+		// Generate JWT token
+		createToken(res, userId);
+		const { password, ...userInfo } = user._doc;
+		return res.status(201).json(userInfo);
 	} catch (error) {
-		console.log(error);
-		return res.status(500).json({ error });
+		return res.status(500).json(error);
 	}
 };
 
@@ -73,7 +75,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = (_, res) => {
 	res.clearCookie("token");
-	res.status(200).json({ message: "Logged out successfully" });
+	res.status(200).json("Logged out successfully");
 };
 
 // Get User Profile
@@ -87,7 +89,7 @@ const getUserProfile = async (req, res) => {
 			return res.status(200).json(userInfo);
 		}
 	} catch (error) {
-		res.status(500).json({ message: "Server Error" });
+		res.status(500).json(error);
 	}
 };
 
@@ -98,7 +100,7 @@ const updateUserProfile = async (req, res) => {
 	try {
 		// Check if all fields are correctlty filled
 		if (!username || !email) {
-			throw new Error("username or Email cannot be empty");
+			return res.status(400).json("username or Email cannot be empty");
 		}
 
 		// Confirm if the user data already exists
@@ -111,28 +113,28 @@ const updateUserProfile = async (req, res) => {
 
 		if (!user) {
 			return res.status(404).json("User not found");
-		} else {
-			user.username = username || user.username;
-			user.email = email || user.email;
-			user.phone = req.body.phone || user.phone;
-			user.image = req.body.image || user.image;
-			user.address = req.body.address || user.address;
-			user.city = req.body.city || user.city;
-			user.state = req.body.state || user.state;
-			user.zip = req.body.zip || user.zip;
-			user.country = req.body.country || user.country;
-			user.isAdmin = req.body.isAdmin || user.isAdmin;
-
-			if (req.body.password) {
-				const salt = await bcrypt.genSalt(10);
-				const hashedPassword = await bcrypt.hash(req.body.password, salt);
-				user.password = hashedPassword;
-			}
-
-			const updatedUser = await user.save();
-			const { password, ...userInfo } = updatedUser._doc;
-			return res.status(200).json(userInfo);
 		}
+
+		user.username = username || user.username;
+		user.email = email || user.email;
+		user.phone = req.body.phone || user.phone;
+		user.image = req.body.image || user.image;
+		user.address = req.body.address || user.address;
+		user.city = req.body.city || user.city;
+		user.state = req.body.state || user.state;
+		user.zip = req.body.zip || user.zip;
+		user.country = req.body.country || user.country;
+		user.isAdmin = req.body.isAdmin || user.isAdmin;
+
+		if (req.body.password) {
+			const salt = await bcrypt.genSalt(10);
+			const hashedPassword = await bcrypt.hash(req.body.password, salt);
+			user.password = hashedPassword;
+		}
+
+		const updatedUser = await user.save();
+		const { password, ...userInfo } = updatedUser._doc;
+		return res.status(200).json(userInfo);
 	} catch (error) {
 		return res.status(500).json(error);
 	}
@@ -143,7 +145,7 @@ const deleteUserProfile = async (req, res) => {
 		await UserProperties.findByIdAndDelete(req.user._id);
 		return res.status(200).json("Account deleted Successfully");
 	} catch (error) {
-		res.status(500).json({ message: "Server Error" });
+		res.status(500).json(error);
 	}
 };
 // ADMIN CONTROLLERS=============================================
@@ -162,7 +164,7 @@ const getUser = async (req, res) => {
 	try {
 		const user = await UserProperties.findById(req.params.id);
 		if (!user) {
-			return res.status(404).json({ message: "User not found" });
+			return res.status(404).json("User not found");
 		} else {
 			return res.status(200).json(user);
 		}
@@ -174,8 +176,8 @@ const getUser = async (req, res) => {
 // Update User
 const updateUser = async (req, res) => {
 	// Check if inputs are valid
-	if (!username || !email || password) {
-		return res.status(400).json({ message: "At least one field is required" });
+	if (!username || !email) {
+		return res.status(400).json("username or email is required");
 	}
 	// Update user data
 	if (req.body.password) {
@@ -201,7 +203,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
 	try {
 		await UserProperties.findByIdAndDelete(req.params.id);
-		return res.status(200).json({ message: "User deleted successfully" });
+		return res.status(200).json("User deleted successfully");
 	} catch (error) {
 		res.status(500).json(error);
 	}
