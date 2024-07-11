@@ -20,18 +20,28 @@ const allowedOrigins = ["https://realing.vercel.app", "http://localhost:5173"];
 app.use(
 	cors({
 		origin: function (origin, callback) {
-			// Allow requests with no origin (like mobile apps, curl requests)
-			if (!origin) return callback(null, true);
-			if (allowedOrigins.indexOf(origin) === -1) {
-				const msg =
-					"The CORS policy for this site does not allow access from the specified Origin.";
-				return callback(new Error(msg), false);
+			if (!origin || allowedOrigins.includes(origin)) {
+				callback(null, true);
+			} else {
+				callback(new Error("Not allowed by CORS"));
 			}
-			return callback(null, true);
 		},
-		credentials: true, // Allow cookies and other credentials
+		credentials: true,
 	}),
 );
+app.use((req, res, next) => {
+	res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+	res.setHeader(
+		"Access-Control-Allow-Methods",
+		"GET, POST, PUT, DELETE, OPTIONS",
+	);
+	res.setHeader(
+		"Access-Control-Allow-Headers",
+		"Origin, X-Requested-With, Content-Type, Accept, Authorization",
+	);
+	res.setHeader("Access-Control-Allow-Credentials", "true");
+	next();
+});
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
