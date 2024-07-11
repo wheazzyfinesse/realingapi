@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema;
 
 const enquirySchema = mongoose.Schema(
 	{
@@ -24,24 +23,25 @@ const propertySchema = mongoose.Schema(
 	{
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
-			ref: "User",
+			ref: "UserProperties",
 			required: true,
 		},
 		title: {
 			type: String,
 			required: true,
+			unique: true,
 		},
-		image: {
-			type: String,
-			required: true,
-		},
+		// image: {
+		// 	type: String,
+		// 	required: true,
+		// },
 		price: {
 			type: Number,
 			required: true,
 			default: 0,
 		},
 		bedrooms: {
-			type: String,
+			type: Number,
 			required: true,
 			min: 1,
 		},
@@ -56,11 +56,6 @@ const propertySchema = mongoose.Schema(
 		},
 		location: {
 			type: String,
-			required: true,
-		},
-		type: {
-			type: String,
-			// enum: ["beach", "mountain", "village"],
 			required: true,
 		},
 		squaremeters: {

@@ -4,44 +4,49 @@ import Property from "../models/propertyModel.js";
 // Add Property
 const addProperty = async (req, res) => {
 	try {
-		const newProperty = await Property.create({
-			...req.body,
-			user: req.user._id,
-		});
-		return res.status(201).json(newProperty);
+		const propertyExists = await Property.findOne({ title: req.body.title });
+		if (propertyExists) {
+			return res.status(404).json(`${req.body.title} already exists`);
+		} else {
+			const property = await Property.create({
+				...req.body,
+				user: req.user._id,
+			});
+			return res.status(201).json(property);
+		}
 	} catch (error) {
-		return res.status(500).json({ message: "Failed to add property" });
+		return res.status(500).json(error);
 	}
 };
 // Get All properties
-const getAllProperties = async (req, res) => {
+const getProperties = async (req, res) => {
 	try {
-		const properties = await Property.find({});
+		const properties = await Property.find({}).populate("user", "-password");
 		return res.status(200).json(properties);
 	} catch (error) {
-		return res.status(500).json(error.message);
+		return res.status(500).json(error);
 	}
 };
 // Get property
 const getProperty = async (req, res) => {
 	try {
 		const property = await Property.findById(req.params.id);
-		if (!property) {
-			throw new Error("Property not found");
-		} else {
-			return res.status(200).json(property);
-		}
+
+		return res.status(201).json(property);
 	} catch (error) {
-		return res.status(500).json(error.message);
+		console.log(error);
+		res.status(500).json(error);
 	}
 };
 // Update property
 const updateProperty = async (req, res) => {
 	try {
 		const property = await Property.findById(req.params.id);
-
-		if (!property || property.user !== req.user._id) {
-			throw new Error("Property not found");
+		if (!property) return res.status(404).json("Property not found");
+		if (!property.user.equals(req.user._id)) {
+			return res
+				.status(404)
+				.json("You don't have authorization to update this Property");
 		} else {
 			const updatedProperty = await Property.findByIdAndUpdate(
 				req.params.id,
@@ -51,7 +56,7 @@ const updateProperty = async (req, res) => {
 			return res.status(200).json(updatedProperty);
 		}
 	} catch (error) {
-		res.status(500).json(error.message);
+		res.status(500).json(error);
 	}
 };
 
@@ -59,22 +64,24 @@ const updateProperty = async (req, res) => {
 const deleteProperty = async (req, res) => {
 	try {
 		const property = await Property.findById(req.params.id);
-
-		if (!property || property.user !== req.user._id) {
-			throw new Error("Property not found");
-		} else {
-			await Property.findByIdAndDelete(req.params.id);
-			return res.status(201).json("Property deleted successfully");
+		if (!property) return res.status(404).json("Property not found");
+		if (!property.user.equals(req.user._id)) {
+			return res
+				.status(404)
+				.json("You don't have authorization to delete this Property");
 		}
+		await Property.findByIdAndDelete(req.params.id);
+		return res.status(201).json("Property deleted successfully");
 	} catch (error) {
-		res.status(500).json(error.message);
+		console.log(error);
+		res.status(500).json(error);
 	}
 };
 
 // EXPORT CONTROLLERS================================================================
 export {
 	addProperty,
-	getAllProperties,
+	getProperties,
 	getProperty,
 	updateProperty,
 	deleteProperty,

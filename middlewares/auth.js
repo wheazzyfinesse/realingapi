@@ -8,7 +8,6 @@ import User from "../models/userModel.js";
 // User only authenticatiopn
 const authenticate = async (req, res, next) => {
 	const authHeader = req.headers.cookie;
-
 	if (authHeader && authHeader.startsWith("token")) {
 		const token = authHeader.split("=")[1];
 		// const tokenId = JSON.parse(token);

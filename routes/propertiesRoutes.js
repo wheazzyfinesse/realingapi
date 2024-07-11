@@ -1,6 +1,6 @@
 import {
 	addProperty,
-	getAllProperties,
+	getProperties,
 	getProperty,
 	updateProperty,
 	deleteProperty,
@@ -13,7 +13,7 @@ const router = express.Router();
 router
 	.route("/")
 	.post(authenticate, authorizeAdmin, addProperty)
-	.get(getAllProperties);
+	.get(getProperties);
 router
 	.route("/:id")
 	.get(getProperty)

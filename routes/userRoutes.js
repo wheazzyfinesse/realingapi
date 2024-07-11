@@ -7,7 +7,7 @@ import {
 	getUserProfile,
 	updateUserProfile,
 	deleteUserProfile,
-	getAllUsers,
+	getUsers,
 	getUser,
 	deleteUser,
 	updateUser,
@@ -24,7 +24,7 @@ router
 	.delete(authenticate, deleteUserProfile);
 
 // Admin routes
-router.route("/").get(authenticate, authorizeAdmin, getAllUsers);
+router.route("/").get(authenticate, authorizeAdmin, getUsers);
 router
 	.route("/:id")
 	.get(authenticate, authorizeAdmin, getUser)
