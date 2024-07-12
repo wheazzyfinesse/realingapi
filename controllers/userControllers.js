@@ -38,8 +38,10 @@ const registerUser = async (req, res) => {
 			"Registration successful, if you receive this message and you did not take this action please disregard this notification, otherwise continue your registration and verify account with the token provided";
 		const type = "register";
 		const subject = "You Registered Realist Realty";
-		sendMailNotification(email, subject, message, type);
-
+		const mailUser = sendMailNotification(email, subject, message, type);
+		if (mailUser !== "Delivered") {
+			return res.status(400).json("Failed to login, could not notify log in");
+		}
 		return res.status(201).json(userInfo);
 	} catch (error) {
 		console.log(error);
@@ -73,15 +75,18 @@ const loginUser = async (req, res) => {
 		}
 		const userId = user._id;
 		// Generate JWT token
-		createToken(res, userId);
+		const token = createToken(res, userId);
 		const { password, ...userInfo } = user._doc;
 
 		const message =
 			"Login successful, if you receive this message and you did not take this action please secure your account, otherwise disregard this notification";
 		const type = "login";
 		const subject = "You Logged In to Realist Realty";
-		sendMailNotification(email, subject, message, type);
-		return res.status(201).json(userInfo);
+		const mailUser = await sendMailNotification(email, subject, message, type);
+		if (mailUser !== "Delivered") {
+			return res.status(400).json("Failed to login, could not notify log in");
+		}
+		return res.status(200).json({ ...userInfo, token });
 	} catch (error) {
 		return res.status(500).json(error);
 	}

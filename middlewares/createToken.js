@@ -9,7 +9,8 @@ const createToken = (res, userId) => {
 		sameSite: "strict",
 		maxAge: 24 * 60 * 60 * 1000,
 	});
-	return;
+	res.setHeader("Authorization", `Bearer ${token}`);
+	return token;
 };
 
 export default createToken;

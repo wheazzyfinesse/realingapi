@@ -93,6 +93,7 @@ export const sendMailNotification = async (email, subject, message, type) => {
 	};
 	try {
 		const response = await transporter.sendMail(options);
+		console.log(response);
 		if (response.rejected.length > 0) {
 			return "Message not sent";
 		} else {

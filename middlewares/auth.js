@@ -7,6 +7,25 @@ import User from "../models/userModel.js";
 
 // User only authenticatiopn
 const authenticate = async (req, res, next) => {
+	const authHeader = req.headers["authorization"];
+	const cookieHeader = req.headers.cookie;
+	const tokenAuth = authHeader && authHeader.split(" ")[1];
+	const tokenCookie = cookieHeader && cookieHeader.split("=")[1];
+
+	if (tokenAuth === null && tokenCookie === null) {
+		return res.status(401).json({ message: "Not authorized, token failed" });
+	}
+	const token = tokenAuth ?? tokenCookie;
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		req.user = await User.findById(decoded.userId).select("-password");
+		next();
+	} catch (error) {
+		res.status(401).json({ message: "Not authorized, token failed" });
+	}
+};
+// User only authenticatiopn
+const authenticat = async (req, res, next) => {
 	const authHeader = req.headers.cookie;
 	if (authHeader && authHeader.startsWith("token")) {
 		const token = authHeader.split("=")[1];
