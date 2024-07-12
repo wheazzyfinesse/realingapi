@@ -30,7 +30,7 @@ const addEnquiry = async (req, res) => {
 		await property.save();
 		const mailAdmin = await sendMailToAdmin(email, message, subject, username);
 		const mailUser = await sendMailToUsers(email);
-		if (mailAdmin !== "Delivered" || mailUser !== "Delivered") {
+		if (mailAdmin !== "Delivered" && mailUser !== "Delivered") {
 			return res.status(400).json("Failed to make an enquiry");
 		} else {
 			return res.status(200).json(enquiry);
