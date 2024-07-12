@@ -16,7 +16,7 @@ router.route("/:id/addenquiry").post(authenticate, addEnquiry);
 router
 	.route("/:id")
 	.get(authenticate, getEnquiry)
-	.put(authenticate, authorizeAdmin, updateEnquiry)
+	.put(authenticate, updateEnquiry)
 	.delete(authenticate, deleteEnquiry);
 
 export default router;
