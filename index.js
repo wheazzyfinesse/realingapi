@@ -15,30 +15,30 @@ dotenv.config();
 const app = express();
 
 // Define allowed origins
-// const allowedOrigins = ["https://realing.vercel.app", "http://localhost:5173"];
+const allowedOrigins = ["https://realing.vercel.app", "http://localhost:5173"];
 
-// app.use(
-// 	cors({
-// 		origin: function (origin, callback) {
-// 			if (!origin || allowedOrigins.includes(origin)) {
-// 				callback(null, true);
-// 			} else {
-// 				callback(new Error("Not allowed by CORS"));
-// 			}
-// 		},
-// 		credentials: true,
-// 	}),
-// );
-const corsOptions = {
-	origin: ["http://localhost:5173", "https://realing.vercel.app"],
-	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-	credentials: true,
-	optionsSuccessStatus: 204,
-};
+app.use(
+	cors({
+		origin: function (origin, callback) {
+			if (!origin || allowedOrigins.includes(origin)) {
+				callback(null, true);
+			} else {
+				callback(new Error("Not allowed by CORS"));
+			}
+		},
+		credentials: true,
+	}),
+);
+// const corsOptions = {
+// 	origin: ["http://localhost:5173", "https://realing.vercel.app"],
+// 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+// 	credentials: true,
+// 	optionsSuccessStatus: 204,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
-app.options("*", cors(corsOptions)); // Pre-flight handling
+// app.options("*", cors(corsOptions)); // Pre-flight handling
 
 app.use(cookieParser());
 app.use(express.json());
