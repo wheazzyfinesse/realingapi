@@ -38,7 +38,7 @@ app.use(
 
 // app.use(cors(corsOptions));
 
-// app.options("*", cors(corsOptions)); // Pre-flight handling
+app.options("*", cors()); // Pre-flight handling
 
 app.use(cookieParser());
 app.use(express.json());
