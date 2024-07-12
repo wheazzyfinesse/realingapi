@@ -19,20 +19,22 @@ const registerUser = async (req, res) => {
 		}
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-
-		const user = await UserProperties.create({
+		console.log(username, password, email, hashedPassword);
+		const user = new UserProperties({
 			username,
 			email,
 			password: hashedPassword,
 		});
+		user.save();
+		console.log(user);
 		const userId = user._id;
 		createToken(res, userId);
 
 		// Set the token in a header
-		const { password, ...userInfo } = user._doc;
-
+		const { password: _, ...userInfo } = user._doc;
 		return res.status(201).json(userInfo);
 	} catch (error) {
+		console.log(error);
 		return res.status(500).json(error);
 	}
 };
@@ -97,6 +99,7 @@ const getUserProfile = async (req, res) => {
 const updateUserProfile = async (req, res) => {
 	const username = req.body.username;
 	const email = req.body.email;
+
 	try {
 		// Check if all fields are correctlty filled
 		if (!username || !email) {

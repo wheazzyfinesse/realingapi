@@ -1,37 +1,42 @@
+import mongoose from "mongoose";
 import { sendMailToAdmin, sendMailToUsers } from "../middlewares/sendmail.js";
-import Property from "../models/propertyModel.js";
+import UserProperties from "../models/userModel.js";
+import Enquiries from "../models/enquiryModel.js";
+import Properties from "../models/propertyModel.js";
 
 // ADMIN CONTROLLERS=============================================
 // Add Enquiry
 const addEnquiry = async (req, res) => {
-	const { message, subject } = req.body;
-	const { email, _id } = req.user;
-
 	try {
-		// const propertyEnq = await Property.find();
-		const property = await Property.findById(req.params.id)
-			.populate("enquiries")
-			.populate("user", "_id");
-		if (!propertyEnquiry) return res.status(404).json("Property not found");
-		propertyEnquiry.enquiries.push({ user: _id, message, subject });
-		console.log(propertyEnquiry);
-		await propertyEnquiry.save();
-		const propertyEnquiry = property.enquiries.map((enquiry) => {
-			return {
-				_id: enquiry._id,
-				user: enquiry.user._id,
-				message: enquiry.message,
-				subject: enquiry.subject,
-				createdAt: enquiry.createdAt,
-				updatedAt: enquiry.updatedAt,
-			};
+		const { message, subject } = req.body;
+		const { email, _id } = req.user; // Ensure req.user is set by your authentication middleware
+
+		if (!message || !subject) {
+			return res.status(400).json("All fields are required");
+		}
+		const propertyId = req.params.id;
+		const property = await Properties.findById(propertyId);
+		const { username } = await UserProperties.findById(_id);
+
+		const enquiry = new Enquiries({
+			property: propertyId,
+			user: _id,
+			message,
+			subject,
 		});
-		console.log(propertyEnquiry);
-		// const response1 = sendMailToAdmin(email, subject, message);
-		// const response = await sendMailToUsers(email, message);
-		return res.staus(200).json(propertyEnquiry);
+		await enquiry.save();
+		property.enquiries.push(enquiry._id);
+
+		await property.save();
+		const mailAdmin = await sendMailToAdmin(email, message, subject, username);
+		const mailUser = await sendMailToUsers(email);
+		if (mailAdmin !== "Delivered" || mailUser !== "Delivered") {
+			return res.status(400).json("Failed to make an enquiry");
+		} else {
+			return res.status(200).json(enquiry);
+		}
 	} catch (error) {
-		res.status(500).json("Server Error");
+		return res.status(400).json(error);
 	}
 };
 

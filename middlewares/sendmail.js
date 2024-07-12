@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const sendMailToAdmin = async (email, subject, message) => {
+export const sendMailToAdmin = async (email, message, subject, username) => {
 	const transporter = nodemailer.createTransport({
 		host: "smtp.gmail.com",
 		port: 465,
@@ -12,19 +12,28 @@ export const sendMailToAdmin = async (email, subject, message) => {
 	const options = {
 		from: email, // sender's email address
 		to: "techfinesse.studio@gmail.com", //Admin's receiver email address
-		subject: subject,
-		text: message,
+		subject: `Property Listing Enquiry made by ${email}`,
+
+		html: `
+				<h3>${username}</h3>
+				<h1> ${subject}</h1>
+                <p>${message}</p>
+                <a href="https://realing.vercel.app/login">Login to view and respond to enquiry</p>
+				`,
 	};
 	try {
 		const response = await transporter.sendMail(options);
-		console.log("Email sent successfully");
-		return response;
+		if (response.rejected.length > 0) {
+			return "Message not sent";
+		} else {
+			return "Delivered";
+		}
 	} catch (error) {
 		console.error("Error sending email", error);
 		return error;
 	}
 };
-export const sendMailToUsers = async (email, message) => {
+export const sendMailToUsers = async (email) => {
 	const transporter = nodemailer.createTransport({
 		host: "smtp.gmail.com",
 		port: 465,
@@ -34,19 +43,20 @@ export const sendMailToUsers = async (email, message) => {
 		},
 	});
 	const options = {
-		from: "Realist Realty Realistrealty2024@gmail.com",
+		from: "Realist Realty",
 		to: email,
 		subject: "You Made an Enquiry for a property listing",
-		text: message,
+		text: "Your enquiry about our property listing has been received we will get back to you as soon as possible, thank you",
 	};
 	try {
 		const response = await transporter.sendMail(options);
 		if (response.rejected.length > 0) {
-			console.log("Message not sent");
+			return "Message not sent";
 		} else {
-			return "Message Delivered successfully";
+			return "Delivered";
 		}
 	} catch (error) {
 		console.error("Error sending email", error);
+		return error;
 	}
 };

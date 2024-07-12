@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userPropertySchema = mongoose.Schema(
+const userPropertiesSchema = mongoose.Schema(
 	{
 		username: {
 			type: String,
@@ -43,6 +43,15 @@ const userPropertySchema = mongoose.Schema(
 			type: String,
 			default: "",
 		},
+		enquiries: {
+			type: [
+				{
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "Property",
+				},
+			],
+			default: [],
+		},
 		isAdmin: {
 			type: Boolean,
 			default: false,
@@ -50,5 +59,5 @@ const userPropertySchema = mongoose.Schema(
 	},
 	{ timestamps: true },
 );
-const UserProperties = mongoose.model("UserProperties", userPropertySchema);
+const UserProperties = mongoose.model("UserProperties", userPropertiesSchema);
 export default UserProperties;

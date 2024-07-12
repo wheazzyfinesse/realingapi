@@ -1,25 +1,6 @@
 import mongoose from "mongoose";
 
-const enquirySchema = mongoose.Schema(
-	{
-		subject: {
-			type: String,
-			required: true,
-		},
-		message: {
-			type: String,
-			required: true,
-		},
-		user: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
-	},
-	{ timestamps: true },
-);
-
-const propertySchema = mongoose.Schema(
+const propertiesSchema = mongoose.Schema(
 	{
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
@@ -62,8 +43,15 @@ const propertySchema = mongoose.Schema(
 			type: Number,
 			required: true,
 		},
-
-		enquiries: [enquirySchema],
+		enquiries: {
+			type: [
+				{
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "Enquiries",
+				},
+			],
+			default: [],
+		},
 		numEnquiries: {
 			type: Number,
 			default: 0,
@@ -71,5 +59,6 @@ const propertySchema = mongoose.Schema(
 	},
 	{ timestamps: true },
 );
-const Property = mongoose.model("Property", propertySchema);
-export default Property;
+
+const Properties = mongoose.model("Properties", propertiesSchema);
+export default Properties;
