@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import UserProperties from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import createToken from "../middlewares/createToken.js";
+import { sendMailNotification } from "../middlewares/sendmail.js";
 
 // USER CONTROLLERS=============================================
 // Register User
@@ -32,6 +33,13 @@ const registerUser = async (req, res) => {
 
 		// Set the token in a header
 		const { password: _, ...userInfo } = user._doc;
+
+		const message =
+			"Registration successful, if you receive this message and you did not take this action please disregard this notification, otherwise continue your registration and verify account with the token provided";
+		const type = "register";
+		const subject = "You Registered Realist Realty";
+		sendMailNotification(email, subject, message, type);
+
 		return res.status(201).json(userInfo);
 	} catch (error) {
 		console.log(error);
@@ -67,6 +75,12 @@ const loginUser = async (req, res) => {
 		// Generate JWT token
 		createToken(res, userId);
 		const { password, ...userInfo } = user._doc;
+
+		const message =
+			"Login successful, if you receive this message and you did not take this action please secure your account, otherwise disregard this notification";
+		const type = "login";
+		const subject = "You Logged In to Realist Realty";
+		sendMailNotification(email, subject, message, type);
 		return res.status(201).json(userInfo);
 	} catch (error) {
 		return res.status(500).json(error);
