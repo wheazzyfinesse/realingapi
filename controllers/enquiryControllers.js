@@ -7,7 +7,6 @@ import Properties from "../models/propertyModel.js";
 // ADMIN CONTROLLERS=============================================
 // Add Enquiry
 const addEnquiry = async (req, res) => {
-	console.log("hey");
 	try {
 		const { message, subject } = req.body;
 		const { email, _id } = req.user; // Ensure req.user is set by your authentication middleware

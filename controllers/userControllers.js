@@ -1,8 +1,7 @@
-import jwt from "jsonwebtoken";
 import UserProperties from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import createToken from "../middlewares/createToken.js";
-import { sendMailNotification } from "../middlewares/sendmail.js";
+import { createToken, createOtp } from "../middlewares/createToken.js";
+import { sendMailNotification, sendMailOtp } from "../middlewares/sendmail.js";
 
 // USER CONTROLLERS=============================================
 // Register User
@@ -20,31 +19,38 @@ const registerUser = async (req, res) => {
 		}
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		console.log(username, password, email, hashedPassword);
 		const user = new UserProperties({
 			username,
 			email,
 			password: hashedPassword,
 		});
-		user.save();
-		console.log(user);
-		const userId = user._id;
-		createToken(res, userId);
-
-		// Set the token in a header
-		const { password: _, ...userInfo } = user._doc;
-
-		const message =
-			"Registration successful, if you receive this message and you did not take this action please disregard this notification, otherwise continue your registration and verify account with the token provided";
+		const otp = createOtp();
+		const id = user._id;
+		const message = `Registration successful, if you receive this message and you did not take this action please disregard this notification, otherwise continue your registration and verify account with the your one time password provided ${otp}`;
 		const type = "register";
-		const subject = "You Registered Realist Realty";
-		const mailUser = sendMailNotification(email, subject, message, type);
+		const subject = "You Registered at Realist Realty";
+		const mailUser = await sendMailNotification(
+			email,
+			id,
+			otp,
+			subject,
+			message,
+			type,
+		);
+
 		if (mailUser !== "Delivered") {
-			return res.status(400).json("Failed to login, could not notify log in");
+			return res
+				.status(400)
+				.json("Failed to register, could not notify log in");
 		}
-		return res.status(201).json(userInfo);
+
+		user.otp = otp;
+		user.save();
+		const userId = user._id;
+		const token = createToken(res, userId);
+		const { password: _, otp: __, ...userInfo } = user._doc;
+		return res.status(201).json({ ...userInfo, token });
 	} catch (error) {
-		console.log(error);
 		return res.status(500).json(error);
 	}
 };
@@ -77,7 +83,6 @@ const loginUser = async (req, res) => {
 		// Generate JWT token
 		const token = createToken(res, userId);
 		const { password, ...userInfo } = user._doc;
-
 		const message =
 			"Login successful, if you receive this message and you did not take this action please secure your account, otherwise disregard this notification";
 		const type = "login";
@@ -86,11 +91,55 @@ const loginUser = async (req, res) => {
 		if (mailUser !== "Delivered") {
 			return res.status(400).json("Failed to login, could not notify log in");
 		}
-		return res.status(200).json({ ...userInfo, token });
+		{
+			return res.status(200).json({ ...userInfo, token });
+		}
 	} catch (error) {
 		return res.status(500).json(error);
 	}
 };
+
+const verifyAccount = async (req, res) => {
+	const { otp, id } = req.body
+	if (!otp || !id) {
+		return res.status(400).json("All fields are required");
+	}
+	try {
+		const user = await UserProperties.findById(id)
+		if (!user) {
+			return res.status(400).json("User not found");
+		}
+		if (user.isVerified) {
+			return res.status(400).json("User is already verified, please log in")
+		}
+		if (user.otp !== otp.toString()) {
+			return res.status(400).json("Inavlid otp, unable to verify your account try again!")
+		}
+		const message = "Account verified successfully, you can now log in";
+		const subject = "You Verified Your Account at Realist Realty";
+		const type = "verify";
+		const mailUser = await sendMailNotification(user.email,
+			id,
+			otp,
+			subject,
+			message,
+			type);
+		if (mailUser !== "Delivered") {
+			return res
+				.status(400)
+				.json("Failed to verify account, could not notify account verification");
+		}
+
+		user.isVerified = true;
+		user.save();
+		const userId = user._id;
+		const token = createToken(res, userId);
+		const { password: _, otp: __, ...userInfo } = user._doc;
+		return res.status(201).json({ ...userInfo, token });
+	} catch (error) {
+		return res.status(500).json(error)
+	}
+}
 
 // Logout User
 
@@ -235,6 +284,7 @@ const deleteUser = async (req, res) => {
 export {
 	registerUser,
 	loginUser,
+	verifyAccount,
 	logoutUser,
 	getUserProfile,
 	updateUserProfile,

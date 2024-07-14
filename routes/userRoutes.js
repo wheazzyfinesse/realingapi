@@ -3,6 +3,7 @@ const router = express.Router();
 import {
 	registerUser,
 	logoutUser,
+	verifyAccount,
 	loginUser,
 	getUserProfile,
 	updateUserProfile,
@@ -19,6 +20,7 @@ router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router
 	.route("/profile")
+	.post(verifyAccount)
 	.get(authenticate, getUserProfile)
 	.put(authenticate, updateUserProfile)
 	.delete(authenticate, deleteUserProfile);

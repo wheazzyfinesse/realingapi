@@ -52,6 +52,14 @@ const userPropertiesSchema = mongoose.Schema(
 			],
 			default: [],
 		},
+		otp: {
+			type: String,
+			default: "",
+		},
+		isVerified: {
+			type: Boolean,
+			default: false,
+		},
 		isAdmin: {
 			type: Boolean,
 			default: false,
