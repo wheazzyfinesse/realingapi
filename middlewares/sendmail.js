@@ -91,7 +91,7 @@ export const sendMailNotification = async (
 			    <p>${message}</p>
 				
 				${type === "otp" ?
-				`<a href="http://localhost:5173/verifyaccount/${id}/${otp}">
+				`<a href="https://realing.vercel.app/verifyaccount/${id}/${otp}">
 							follow the link to Verify account
 						</a>` : `<a href="https://realing.vercel.app/profile">
 							Go to your account
