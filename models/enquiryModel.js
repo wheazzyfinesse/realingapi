@@ -23,5 +23,31 @@ const enquiriesSchema = mongoose.Schema(
 	},
 	{ timestamps: true },
 );
+const anonEnquiriesSchema = mongoose.Schema(
+	{
+		firstName: {
+			type: String,
+			required: true,
+		},
+		lastName: {
+			type: String,
+			required: true,
+		},
+		email: {
+			type: String,
+			required: true,
+		},
+		phone: {
+			type: String,
+			required: true,
+		},
+		message: {
+			type: String,
+			required: true,
+		},
+	},
+	{ timestamps: true },
+);
+const AnonEnquiries = mongoose.model("AnonEnquiries", anonEnquiriesSchema);
 const Enquiries = mongoose.model("Enquiries", enquiriesSchema);
-export default Enquiries;
+export { Enquiries, AnonEnquiries };

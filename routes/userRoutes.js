@@ -4,6 +4,7 @@ import {
 	registerUser,
 	logoutUser,
 	verifyAccount,
+	getVerificationCode,
 	loginUser,
 	getUserProfile,
 	updateUserProfile,
@@ -18,6 +19,7 @@ import { authenticate, authorizeAdmin } from "../middlewares/auth.js";
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
+router.get("/verify", authenticate, getVerificationCode);
 router
 	.route("/profile")
 	.post(verifyAccount)

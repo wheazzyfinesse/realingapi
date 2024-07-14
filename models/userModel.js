@@ -43,15 +43,6 @@ const userPropertiesSchema = mongoose.Schema(
 			type: String,
 			default: "",
 		},
-		enquiries: {
-			type: [
-				{
-					type: mongoose.Schema.Types.ObjectId,
-					ref: "Property",
-				},
-			],
-			default: [],
-		},
 		otp: {
 			type: String,
 			default: "",

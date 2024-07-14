@@ -1,5 +1,6 @@
 import {
 	addEnquiry,
+	addAnonEnquiry,
 	getAllEnquiries,
 	getEnquiry,
 	updateEnquiry,
@@ -11,11 +12,14 @@ import express from "express";
 const router = express.Router();
 
 router.route("/").get(authenticate, authorizeAdmin, getAllEnquiries);
+router.route("/addanonenquiry").post(addAnonEnquiry);
 
 router.route("/:id/addenquiry").post(authenticate, addEnquiry);
 router
-	.route("/:id")
+	.route("/user")
 	.get(authenticate, getEnquiry)
+router
+	.route("/:id")
 	.put(authenticate, updateEnquiry)
 	.delete(authenticate, deleteEnquiry);
 

@@ -90,58 +90,12 @@ export const sendMailNotification = async (
 		    <h1>${subject}</h1>
 			    <p>${message}</p>
 				
-				${type === "register" &&
-			`<a href="http://localhost:5173/verifyaccount/${id}/${otp}">
+				${type === "otp" ?
+				`<a href="http://localhost:5173/verifyaccount/${id}/${otp}">
 							follow the link to Verify account
-						</a>`
-			}
-				${type === "login" &&
-			`<a href="https://realing.vercel.app/profile">
+						</a>` : `<a href="https://realing.vercel.app/profile">
 							Go to your account
-						</a>`
-			}
-				${type === "verify" &&
-			`<a href="https://realing.vercel.app/login">
-							Go to your account
-						</a>`
-			}
-				`,
-	};
-	try {
-		const response = await transporter.sendMail(options);
-		if (response.rejected.length > 0) {
-			return "Message not sent";
-		} else {
-			return "Delivered";
-		}
-	} catch (error) {
-		console.error("Error sending email", error);
-		return error;
-	}
-};
-
-// Otp Mails
-export const sendMailOtp = async (email, id, otp, message, subject) => {
-	const transporter = nodemailer.createTransport({
-		host: "smtp.gmail.com",
-		port: 465,
-		auth: {
-			user: "techfinesse.studio@gmail.com",
-			pass: "hqzr onks syfs sped",
-		},
-	});
-	const options = {
-		from: "techfinesse.studio@gmail.com", //Admin's receiver email address
-		to: email, // sender's email address
-		subject: `Your Requested One Time Password is: ${otp}`,
-
-		html: `
-				<h1> ${subject}</h1>
-				<h3> ${message}</h3>
-                <p>Your Requested One Time Password is: ${otp}</p>
-                <a href="http://localhost:5173/verifyaccount/${id}/${otp}">
-							follow the link to Verify account
-						</a>
+						</a>`}
 				`,
 	};
 	try {

@@ -1,7 +1,7 @@
 import UserProperties from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { createToken, createOtp } from "../middlewares/createToken.js";
-import { sendMailNotification, sendMailOtp } from "../middlewares/sendmail.js";
+import { sendMailNotification } from "../middlewares/sendmail.js";
 
 // USER CONTROLLERS=============================================
 // Register User
@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
 		const otp = createOtp();
 		const id = user._id;
 		const message = `Registration successful, if you receive this message and you did not take this action please disregard this notification, otherwise continue your registration and verify account with the your one time password provided ${otp}`;
-		const type = "register";
+		const type = "otp";
 		const subject = "You Registered at Realist Realty";
 		const mailUser = await sendMailNotification(
 			email,
@@ -64,7 +64,7 @@ const loginUser = async (req, res) => {
 	}
 
 	try {
-		const user = await UserProperties.findOne({ email });
+		const user = await UserProperties.findOne({ email });;
 		if (!user) {
 			return res
 				.status(400)
@@ -86,14 +86,16 @@ const loginUser = async (req, res) => {
 		const message =
 			"Login successful, if you receive this message and you did not take this action please secure your account, otherwise disregard this notification";
 		const type = "login";
+		const otp = ""
+		const id = ""
 		const subject = "You Logged In to Realist Realty";
-		const mailUser = await sendMailNotification(email, subject, message, type);
+		const mailUser = await sendMailNotification(email, id, otp, subject, message, type);
 		if (mailUser !== "Delivered") {
 			return res.status(400).json("Failed to login, could not notify log in");
 		}
-		{
-			return res.status(200).json({ ...userInfo, token });
-		}
+
+		return res.status(200).json({ ...userInfo, token });
+
 	} catch (error) {
 		return res.status(500).json(error);
 	}
@@ -117,7 +119,7 @@ const verifyAccount = async (req, res) => {
 		}
 		const message = "Account verified successfully, you can now log in";
 		const subject = "You Verified Your Account at Realist Realty";
-		const type = "verify";
+		const type = "login";
 		const mailUser = await sendMailNotification(user.email,
 			id,
 			otp,
@@ -140,9 +142,40 @@ const verifyAccount = async (req, res) => {
 		return res.status(500).json(error)
 	}
 }
+// Get Otp
+const getVerificationCode = async (req, res) => {
+	const id = req.user._id;
+	if (!id) {
+		return res.status(400).json("user is required");
+	}
+	try {
+		const user = await UserProperties.findById(id);
+		if (!user) {
+			return res.status(400).json("User not found");
+		}
+
+		const otp = createOtp();
+
+		const message = `One Time Password for your account verification is ${otp}`;
+		const subject = "Realist Realty - One Time Password";
+		const type = "otp";
+		const mailUser = await sendMailNotification(user.email, id, otp, subject, message, type);
+		if (mailUser !== "Delivered") {
+			return res
+				.status(400)
+				.json("Failed to send OTP, could not notify OTP");
+		}
+		user.otp = otp;
+		user.save();
+		return res.status(200).json("OTP sent to email successfully");
+
+	} catch (error) {
+		return res.status(500).json(error);
+
+	}
+}
 
 // Logout User
-
 const logoutUser = (_, res) => {
 	res.clearCookie("token");
 	res.status(200).json("Logged out successfully");
@@ -285,6 +318,7 @@ export {
 	registerUser,
 	loginUser,
 	verifyAccount,
+	getVerificationCode,
 	logoutUser,
 	getUserProfile,
 	updateUserProfile,
